@@ -1,5 +1,7 @@
 (defpackage #:gamebox-frame-manager
   (:use #:cl)
   (:export #:frame-manager
-           #:tick
-           #:alpha))
+           #:delta-physics
+           #:delta-render
+           #:alpha
+           #:tick))
