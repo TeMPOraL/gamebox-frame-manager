@@ -13,11 +13,6 @@
    (debug-time :initform (local-time:now))
    (debug-count :initform 0)))
 
-(slog:define-message :trace :frame-manager.smooth.before
-  "Before smoothing: Target: ~F, Actual: ~F, Buffer: ~F")
-
-(slog:define-message :trace :frame-manager.smooth.after
-  "After smoothing: Target: ~F, Actual: ~F, Buffer: ~F, Frames: ~A")
 
 (defun smooth-delta-time (frame-manager refresh-rate)
   "Smooth the delta time based on the monitor's refresh rate. This improves the rendering quality."
@@ -31,8 +26,6 @@
             dt-buffer (- previous-dt dt))
       (slog:emit :frame-manager.smooth.after dt-target dt dt-buffer frame-count))))
 
-(slog:define-message :debug :frame-manager.rate
-  "FPS = ~,3f, ms/f = ~,3f")
 
 (defun calculate-frame-rate (frame-manager)
   "Calculate the frames-per-second and milliseconds-per-frame, and emits them as a log message."
