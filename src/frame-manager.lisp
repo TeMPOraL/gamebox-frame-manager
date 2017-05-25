@@ -49,7 +49,8 @@
   "A single physics update which calls the user-supplied STEP-FUNC when necessary.
 The ALPHA reader method of the frame manager stores the interpolation coefficient to be used for blending frames in the
 STEP-FUNC."
-  (with-slots (%delta %accumulator %alpha) frame-manager
+  (with-slots (%delta %frame-time %accumulator %alpha) frame-manager
+    (incf %accumulator %frame-time)
     (loop :while (>= %accumulator %delta)
           :do (funcall step-func)
               (decf %accumulator %delta)
@@ -58,11 +59,10 @@ STEP-FUNC."
 (defun tick (frame-manager refresh-rate step-func)
   "This is designed to be called each iteration of a main game loop, which calls STEP-FUNC to update the physics when
 necessary, based on the DELTA-PHYSICS of the frame manager."
-  (with-slots (%now %before %frame-time %accumulator) frame-manager
+  (with-slots (%now %before %frame-time) frame-manager
     (setf %before %now
           %now (local-time:now)
           %frame-time (local-time:timestamp-difference %now %before))
     (smooth-delta-time frame-manager refresh-rate)
-    (incf %accumulator %frame-time)
-    (calculate-frame-rate frame-manager)
-    (update frame-manager step-func)))
+    (update frame-manager step-func)
+    (calculate-frame-rate frame-manager)))
