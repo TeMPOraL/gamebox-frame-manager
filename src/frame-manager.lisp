@@ -1,7 +1,8 @@
 (in-package :gamebox-frame-manager)
 
 (defclass frame-manager ()
-  ((%now :initform (local-time:now))
+  ((%init :initform (local-time:now))
+   (%now :initform (local-time:now))
    (%before :initform 0)
    (%delta :reader delta
            :initarg :delta
@@ -12,6 +13,8 @@
    (%accumulator :initform 0)
    (%alpha :reader alpha
            :initform 0.0)
+   (%period :initarg :period
+            :initform nil)
    (%debug-interval :initarg :debug-interval
                     :initform 5)
    (%debug-time :initform 0)
@@ -56,13 +59,27 @@ STEP-FUNC."
               (decf %accumulator %delta)
           :finally (setf %alpha (/ %accumulator %delta)))))
 
-(defun tick (frame-manager refresh-rate step-func)
+(defun periodic-update (frame-manager func)
+  "A periodic physics update. If the frame manager class is instantiated with a :period argument, call FUNC every PERIOD
+seconds. This is useful when you need to call expensive or perform operations periodically, rather than every game tick."
+  (with-slots (%init %period) frame-manager
+    (let ((now (local-time:now)))
+      (when (and %period
+                 func
+                 (>= (local-time:timestamp-difference now %init) %period))
+        (funcall func)
+        (slog:emit :frame-manager.periodic-update %period)
+        (setf %init now)))))
+
+(defun tick (frame-manager refresh-rate step-func &key periodic-func)
   "This is designed to be called each iteration of a main game loop, which calls STEP-FUNC to update the physics when
 necessary, based on the DELTA-PHYSICS of the frame manager."
-  (with-slots (%now %before %frame-time) frame-manager
+  (with-slots (%init %now %before %frame-time %period) frame-manager
     (setf %before %now
           %now (local-time:now)
           %frame-time (local-time:timestamp-difference %now %before))
     (smooth-delta-time frame-manager refresh-rate)
     (update frame-manager step-func)
+    (when periodic-func
+      (periodic-update frame-manager periodic-func))
     (calculate-frame-rate frame-manager)))
