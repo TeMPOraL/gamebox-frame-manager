@@ -10,7 +10,8 @@
   :source-control (:git "git@github.com:mfiano/gamebox-frame-manager.git")
   :version "1.0.0"
   :encoding :utf-8
-  :long-description #.(uiop:read-file-string (uiop/pathname:subpathname *load-pathname* "README.md"))
+  :long-description #.(uiop:read-file-string
+                       (uiop/pathname:subpathname *load-pathname* "README.md"))
   :depends-on (#:local-time
                #:simple-logger)
   :pathname "src"
