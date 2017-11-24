@@ -1,8 +1,11 @@
 (in-package :gamebox-frame-manager)
 
 (defclass frame-manager ()
-  ((%now :initform (local-time:now))
+  ((%start :initform (local-time:now))
+   (%now :initform (local-time:now))
    (%before :initform 0)
+   (%total-time :reader total-time
+                :initform 0)
    (%delta :reader delta
            :initarg :delta
            :initform (/ 30.0))
@@ -79,10 +82,12 @@ rather than every game tick."
   "This is designed to be called each iteration of a main game loop, which calls
 STEP-FUNC to update the physics when necessary, based on the DELTA-PHYSICS of
 the frame manager."
-  (with-slots (%init %now %before %frame-time %period) frame-manager
+  (with-slots (%init %now %start %before %total-time %frame-time %period)
+      frame-manager
     (setf %before %now
           %now (local-time:now)
-          %frame-time (local-time:timestamp-difference %now %before))
+          %frame-time (local-time:timestamp-difference %now %before)
+          %total-time (local-time:timestamp-difference %now %start))
     (smooth-delta-time frame-manager refresh-rate)
     (update frame-manager step-func)
     (when periodic-func
