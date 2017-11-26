@@ -22,14 +22,14 @@ First, create a `FRAME-MANAGER` object with your desired delta time:
 
 ``` lisp
 (defparameter *frame-manager* (make-instance 'frame-manager
-                                             :dt-target (/ 1 30.0)))
+                                             :delta (/ 1 30.0)))
 ```
 
 Instead, you can also sub-class `FRAME-MANAGER`:
 
 ``` lisp
 (defclass my-game (frame-manager)
-  ((dt-target :initform (/ 1 30.0))))
+  ((delta :initform (/ 1 30.0))))
 
 (defparameter *my-game* (make-instance 'my-game))
 ```
